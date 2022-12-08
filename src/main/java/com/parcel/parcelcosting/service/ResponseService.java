@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 public class ResponseService {
     public JSONObject voucherDetails(boolean valid,org.json.JSONObject apiRespJson,Double cost){
         JSONObject response = new JSONObject();
-        response.put("voucherCode", apiRespJson.get("code"));
         response.put("discount", apiRespJson.get("discount"));
-        response.put("voucherValidTill", apiRespJson.get("expiry"));
-        response.put("voucherApplied", valid);
         response.put("discountCost",cost);
         if(!valid){
             response.put("message", MessageCode.VOUCHER_EXPIRED);
@@ -31,8 +28,8 @@ public class ResponseService {
 
     public JSONObject parcelDetails(HttpResponse<JsonNode> costResp){
         JSONObject parcelDetails = new JSONObject();
-        parcelDetails.put("parcelCost", costResp.getBody().getObject().get("cost"));
-        parcelDetails.put("parcelType", costResp.getBody().getObject().get("status"));
+        parcelDetails.put("parcelCost", costResp.getBody().getObject().get("parcelCost"));
+        parcelDetails.put("parcelType", costResp.getBody().getObject().get("parcelStatus"));
         return parcelDetails;
     }
 

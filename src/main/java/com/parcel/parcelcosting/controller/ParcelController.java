@@ -11,15 +11,14 @@ import com.parcel.parcelcosting.reporsiory.ParcelRepository;
 import com.parcel.parcelcosting.reporsiory.VoucherRepository;
 import com.parcel.parcelcosting.service.ParcelService;
 import com.parcel.parcelcosting.service.ResponseService;
-import com.parcel.parcelcosting.service.VoucherService;
+import com.parcel.parcelcosting.service.VoucherServiceImpl;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
-@RestController()
+@RestController("/parcel")
 public class ParcelController {
     @Autowired
     ParcelRepository parcelRepository;
@@ -30,29 +29,20 @@ public class ParcelController {
     ParcelService parcelService;
 
     @Autowired
-    VoucherService voucherService;
+    VoucherServiceImpl voucherService;
 
     @Autowired
     ResponseService responseService;
 
-    @Value("${voucher.api.url}")
-    private String url;
-    @Value("${voucher.api.key}")
-    private String apiKey;
-
-    @Value("${cost.api.url}")
-    private String costingUrl;
-
-
-    @PostMapping("/cost")
-    ResponseEntity<JSONObject> cost(@RequestBody Parcel parcel){
+    @PostMapping("/delivery-cost")
+    ResponseEntity<JSONObject> deliveryCost(@RequestBody Parcel parcel){
         try {
             JSONObject response = new JSONObject();
             parcel.setVolume(parcel.getHeight() * parcel.getWidth() * parcel.getLength());
             parcel.setCost(parcelService.getCost(parcel));
             parcelRepository.save(parcel);
-            response.put("status", parcel.getRule());
-            response.put("cost", parcel.getCost());
+            response.put("parcelStatus", parcel.getRule());
+            response.put("parcelCost", parcel.getCost());
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
         catch (Exception e){
@@ -61,41 +51,18 @@ public class ParcelController {
 
     }
 
-    @PostMapping("/cost/{voucherCode}")
-    ResponseEntity<JSONObject> cost(@RequestBody Parcel parcel, @PathVariable String voucherCode) throws UnirestException {
-
+    @PostMapping("/delivery-cost/{voucherCode}")
+    ResponseEntity<JSONObject> deliveryCostVoucher(@RequestBody Parcel parcel, @PathVariable String voucherCode) throws UnirestException {
         try {
             JSONObject response = new JSONObject();
-            JSONObject requestBody = new JSONObject();
-
             Voucher voucher = new Voucher();
             voucher.setCode(voucherCode);
-
-            //Call to cost API
-            requestBody.put("height", parcel.getHeight());
-            requestBody.put("weight", parcel.getWeight());
-            requestBody.put("length", parcel.getLength());
-            requestBody.put("width", parcel.getWidth());
-
-            HttpResponse<JsonNode> costResp = Unirest.post(costingUrl).header("Content-Type", "application/json").body(requestBody.toJSONString()).asJson();
-            response.put("parcelDeatils",responseService.parcelDetails(costResp));
-
-            if (!voucherService.isValidCode(voucherCode)) {
-                voucher.setMessage(MessageCode.INVALID_VOUCHER_CODE);
-                voucherRepository.save(voucher);
-                response.put("voucherDetails",responseService.invalidVoucherCode());
-                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-
-            }
-            //Call to voucher API
-            HttpResponse<JsonNode> apiResp = Unirest.get(url + "" + voucherCode + "?key=" + apiKey).header("accept", "application/json").asJson();
-            Object voucherDetails = voucherService.getDiscount(apiResp, (Double) costResp.getBody().getObject().get("cost"), voucher);
-            response.put("voucherDetails", voucherDetails);
+            Double cost = (Double) voucherService.callDeliveryCostApi(parcel).get("parcelCost");
+            response.put("parcelDetails", voucherService.callDeliveryCostApi(parcel));
+            response.put("voucherDetails", voucherService.callVaucherApi(parcel, voucherCode, voucher, cost));
             voucherRepository.save(voucher);
             return new ResponseEntity<>(response, HttpStatus.OK);
-
-
-        } catch (Exception e) {
+        }catch (Exception e){
             return new ResponseEntity<>(responseService.exceptionMessage(e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
