@@ -11,11 +11,6 @@ public class Parcel {
     @Column(name = "parcel_id", nullable = false)
     private Long parcelId;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "voucher_id", referencedColumnName = "voucher_id")
-    private Voucher voucher;
-
-
     @Column(name = "height", nullable = false)
     private Double height;
 

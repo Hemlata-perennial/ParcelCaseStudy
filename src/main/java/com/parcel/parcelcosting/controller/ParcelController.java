@@ -2,9 +2,8 @@ package com.parcel.parcelcosting.controller;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.parcel.parcelcosting.entity.Parcel;
-import com.parcel.parcelcosting.entity.Voucher;
+import com.parcel.parcelcosting.enums.MessageCode;
 import com.parcel.parcelcosting.reporsiory.ParcelRepository;
-import com.parcel.parcelcosting.reporsiory.VoucherRepository;
 import com.parcel.parcelcosting.service.ParcelService;
 import com.parcel.parcelcosting.service.ResponseService;
 import com.parcel.parcelcosting.service.VoucherServiceImpl;
@@ -21,13 +20,9 @@ public class ParcelController {
     ParcelRepository parcelRepository;
 
     @Autowired
-    VoucherRepository voucherRepository;
-    @Autowired
     ParcelService parcelService;
-
     @Autowired
     VoucherServiceImpl voucherService;
-
     @Autowired
     ResponseService responseService;
 
@@ -55,14 +50,16 @@ public class ParcelController {
     ResponseEntity<JSONObject> deliveryCostVoucher(@RequestBody Parcel parcel, @PathVariable String voucherCode) throws UnirestException {
         try {
             JSONObject response = new JSONObject();
-            Voucher voucher = new Voucher();
-            voucher.setCode(voucherCode);
-            JSONObject resp = voucherService.callDeliveryCostApi(parcel);
-            Double cost = (Double) resp.get("parcelCost");
-            response.put("parcelDetails", resp);
-            response.put("voucherDetails", voucherService.callVaucherApi(parcel, voucherCode, voucher, cost));
-            voucherRepository.save(voucher);
-            logger.info("Voucher details has been saved successfully!");
+            response = voucherService.callDeliveryCostApi(parcel);
+            Double cost = (Double) response.get("parcelCost");
+            JSONObject voucherDetails = voucherService.callVaucherApi(parcel,voucherCode,cost);
+            if(voucherDetails.get("finalCost") != null) {
+                response.put("finalCost", voucherDetails.get("finalCost"));
+            }
+            else {
+                response.put("finalCost", cost);
+                response.put("message", MessageCode.INVALID_VOUCHER_CODE);
+            }
             return new ResponseEntity<>(response, HttpStatus.OK);
         }catch (Exception e){
             logger.error(e.getMessage());

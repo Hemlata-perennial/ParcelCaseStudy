@@ -8,14 +8,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ResponseService {
-    public JSONObject voucherDetails(boolean valid,org.json.JSONObject apiRespJson,Double cost){
+    public JSONObject voucherDetails(Double cost){
         JSONObject response = new JSONObject();
-        response.put("discount", apiRespJson.get("discount"));
-        response.put("discountCost",cost);
-        if(!valid){
-            response.put("message", MessageCode.VOUCHER_EXPIRED);
-            response.put("messageCode", "VOUCHER_EXPIRED");
-        }
+        response.put("finalCost",cost);
         return response;
     }
 

@@ -4,10 +4,7 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.parcel.parcelcosting.controller.ParcelController;
 import com.parcel.parcelcosting.entity.Parcel;
-import com.parcel.parcelcosting.entity.Voucher;
-import com.parcel.parcelcosting.enums.MessageCode;
 import net.minidev.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +45,10 @@ public class VoucherServiceImpl implements VoucherService{
 
     }
     @Override
-    public Object callVaucherApi(Parcel parcel, String voucherCode, Voucher voucher, Double cost) throws UnirestException {
+    public JSONObject callVaucherApi(Parcel parcel, String voucherCode, Double cost) throws UnirestException {
         HttpResponse<JsonNode> apiResp = Unirest.get(url + "" + voucherCode + "?key=" + apiKey).header("accept", "application/json").asJson();
         logger.info("voucher api called with status: "+apiResp.getStatusText());
-        Object voucherDetails = getDiscount(apiResp, cost, voucher);
-        return voucherDetails;
+        return getDiscount(apiResp, cost);
     }
 
     @Override
@@ -82,36 +78,25 @@ public class VoucherServiceImpl implements VoucherService{
         }
     }
     @Override
-    public Object getDiscount(HttpResponse<JsonNode> apiResp, Double cost, Voucher voucher) {
+    public JSONObject getDiscount(HttpResponse<JsonNode> apiResp, Double cost) {
 
         org.json.JSONObject apiRespJson = apiResp.getBody().getObject();
 
         if (apiResp.getStatus() == 200) {
-            voucher.setDiscount((Double) apiRespJson.get("discount"));
-            voucher.setVoucherValidTill((String) apiRespJson.get("expiry"));
             if (isValidVoucher(String.valueOf(apiRespJson.get("expiry")))) {
                 logger.info("Voucher is valid");
                 Double discountedCost = calculateDiscountCost(cost, (Double) apiRespJson.get("discount"));
-                voucher.setVoucherApplied(true);
-                voucher.setDiscountCost(discountedCost);
-                return responseService.voucherDetails(true,apiRespJson,discountedCost);
+                return responseService.voucherDetails(discountedCost);
             } else {
                 logger.info("Voucher is expired");
-                voucher.setVoucherApplied(false);
-                voucher.setDiscountCost(cost);
-                voucher.setMessage(MessageCode.VOUCHER_EXPIRED);
-                return responseService.voucherDetails(false,apiRespJson,cost);
+                return responseService.voucherDetails(cost);
             }
         } else if(apiResp.getStatus() == 400){
             logger.info("Voucher is invalid");
-            voucher.setVoucherApplied(false);
-            voucher.setDiscountCost(cost);
-            voucher.setMessage(MessageCode.INVALID_VOUCHER_CODE);
             return responseService.invalidVoucherCode();
         }
         else {
-            JSONObject voucherDetails = new JSONObject();
-            return voucherDetails.put("message",apiRespJson);
+            return responseService.voucherDetails(0.0);
         }
 
     }

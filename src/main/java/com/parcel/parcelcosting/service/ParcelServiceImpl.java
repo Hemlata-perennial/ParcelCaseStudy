@@ -38,6 +38,7 @@ public class ParcelServiceImpl implements ParcelService {
             parcel.setRule("Large Parcel");
             cost = 0.05 * volume;
         }
+
         return cost;
     }
 }
