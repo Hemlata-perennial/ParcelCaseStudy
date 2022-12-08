@@ -12,5 +12,9 @@ public class ParcelCostingApplication {
         SpringApplication.run(ParcelCostingApplication.class, args);
     }
 
+    @Bean
+    public RestTemplate getRestTemplate() {
+        return new RestTemplate();
+    }
 
 }
