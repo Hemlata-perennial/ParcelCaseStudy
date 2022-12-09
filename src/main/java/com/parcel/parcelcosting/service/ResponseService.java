@@ -20,8 +20,6 @@ public class ResponseService {
      * @param discountedDeliveryCost  delivery cost calculated after applying voucher
      * **/
     public ResponseEntity<JSONObject> getDeliveryCostApiResponse(Double deliveryCost, Double discountedDeliveryCost){
-
-
         JSONObject response = new JSONObject();
         df.setRoundingMode(RoundingMode.UP);
         response.put("deliveryCost",df.format(deliveryCost));

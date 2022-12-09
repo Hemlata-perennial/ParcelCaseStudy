@@ -20,15 +20,13 @@ public class ParcelController {
     @Autowired
     ResponseService responseService;
     Logger logger = LoggerFactory.getLogger(ParcelController.class);
-
     /**
      * @param parcel  Details of parcel such as height,weight,length,width
      * @param voucherCode The coupont code to apply discount on the calculated delivery cost
      * @return Delivery cost of the parcel based on the parcel details provided and the voucher applied.
      */
     @PostMapping("/delivery-cost/")
-    //TODO : change name
-    ResponseEntity<JSONObject> deliveryCostVoucher(@RequestBody Parcel parcel, @RequestParam(required = false) final String voucherCode) throws UnirestException {
+    ResponseEntity<JSONObject> deliveryCost(@RequestBody Parcel parcel, @RequestParam(required = false) final String voucherCode) throws UnirestException {
         try {
             logger.info("Calculating cost");
             return parcelService.getCost(parcel,voucherCode);
