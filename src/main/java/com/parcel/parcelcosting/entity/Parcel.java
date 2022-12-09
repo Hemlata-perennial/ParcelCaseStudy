@@ -45,25 +45,18 @@ public class Parcel {
     public Double getWeight() {
         return weight;
     }
-
     public Double getHeight() {
         return height;
     }
-
     public Double getWidth() {
         return width;
     }
-
-
     public Double getLength() {
         return length;
     }
-
-
     public static Double getVolume(final Parcel parcel) {
         return parcel.length * parcel.width * parcel.height;
     }
-
     @Override
     public String toString() {
         return "weight=" + weight +
