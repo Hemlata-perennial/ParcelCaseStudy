@@ -68,7 +68,7 @@ public class TestVoucher extends ParcelCostingApplicationTests {
         ResponseEntity<String> result = this.restTemplate.postForEntity(uri, request, String.class);
 
         Assert.assertEquals(200,result.getStatusCodeValue());
-        Assert.assertEquals("{\"parcelType\":\"Large Parcel\",\"finalCost\":753.9188101312502,\"message\":\"Voucher code is not valid!!\",\"parcelCost\":753.9188101312502}", result.getBody().toString());
+        Assert.assertEquals("{\"finalCost\":0.74,\"message\":\"Voucher code is not valid!!\",\"parcelCost\":0.74}", result.getBody().toString());
 
     }
     @Test
@@ -87,6 +87,6 @@ public class TestVoucher extends ParcelCostingApplicationTests {
 
         ResponseEntity<String> result = this.restTemplate.postForEntity(uri, request, String.class);
 
-        Assert.assertEquals("{\"parcelType\":\"Large Parcel\",\"finalCost\":753.9188101312502,\"parcelCost\":753.9188101312502}", result.getBody().toString());
+        Assert.assertEquals("{\"finalCost\":0.74,\"parcelCost\":0.74}", result.getBody().toString());
     }
 }
