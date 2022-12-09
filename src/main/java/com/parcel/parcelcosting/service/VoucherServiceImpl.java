@@ -6,6 +6,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.parcel.parcelcosting.entity.Parcel;
 import com.parcel.parcelcosting.enums.MessageCode;
+import com.parcel.parcelcosting.exception.InvalidVoucherException;
 import com.parcel.parcelcosting.exception.VoucherExpiredException;
 import net.minidev.json.JSONObject;
 import org.slf4j.Logger;
@@ -34,18 +35,6 @@ public class VoucherServiceImpl implements VoucherService{
     @Value("${voucher.api.key}")
     private String apiKey;
 
-    @Override
-    public JSONObject callDeliveryCostApi(Parcel parcel) throws UnirestException {
-        JSONObject requestBody = new JSONObject();
-        requestBody.put("height", parcel.getHeight());
-        requestBody.put("weight", parcel.getWeight());
-        requestBody.put("length", parcel.getLength());
-        requestBody.put("width", parcel.getWidth());
-        HttpResponse<JsonNode> costResp = Unirest.post(costingUrl).header("Content-Type", "application/json").body(requestBody.toJSONString()).asJson();
-        logger.info("delivery-cost api called with status: "+costResp.getStatusText());
-        return responseService.parcelDetails(costResp);
-
-    }
     @Override
     public JSONObject callVaucherApi(Parcel parcel, String voucherCode, Double cost) throws UnirestException {
         HttpResponse<JsonNode> apiResp = Unirest.get(url + "" + voucherCode + "?key=" + apiKey).header("accept", "application/json").asJson();
@@ -90,13 +79,12 @@ public class VoucherServiceImpl implements VoucherService{
                 Double discountedCost = calculateDiscountCost(cost, (Double) apiRespJson.get("discount"));
                 return responseService.voucherDetails(discountedCost);
             } else {
-                logger.info("Voucher is expired");
+                logger.error("Voucher is expired");
                 throw new VoucherExpiredException(MessageCode.VOUCHER_EXPIRED);
-                //return responseService.voucherDetails(cost);
             }
         } else if(apiResp.getStatus() == 400){
-            logger.info("Voucher is invalid");
-            return responseService.invalidVoucherCode();
+            logger.error("Voucher is invalid");
+            throw new InvalidVoucherException(MessageCode.INVALID_VOUCHER_CODE);
         }
         else {
             return responseService.voucherDetails(0.0);

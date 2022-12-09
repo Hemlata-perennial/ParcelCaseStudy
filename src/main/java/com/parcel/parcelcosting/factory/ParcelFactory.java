@@ -17,7 +17,7 @@ public class ParcelFactory {
     static Logger logger = LoggerFactory.getLogger(ParcelFactory.class);
 
 
-    private ParcelFactory() {
+    public ParcelFactory() {
     }
 
     public static Double getDeliveryCost(final Parcel parcel) {

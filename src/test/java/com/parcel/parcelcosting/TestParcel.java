@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 
 import com.parcel.parcelcosting.entity.Parcel;
+import com.parcel.parcelcosting.factory.ParcelFactory;
 import com.parcel.parcelcosting.factory.ParcelRules;
 import com.parcel.parcelcosting.service.ParcelService;
 import net.minidev.json.JSONObject;
@@ -56,8 +57,6 @@ public class TestParcel extends ParcelCostingApplicationTests {
 
     @Mock
     private ParcelRules.SmallParcel smallParcel;
-
-
 
 
     @Test

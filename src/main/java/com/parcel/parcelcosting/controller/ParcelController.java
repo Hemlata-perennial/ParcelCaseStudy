@@ -55,8 +55,7 @@ public class ParcelController {
     ResponseEntity<JSONObject> deliveryCostVoucher(@RequestBody Parcel parcel, @PathVariable String voucherCode) throws UnirestException {
         try {
             JSONObject response = new JSONObject();
-            response = voucherService.callDeliveryCostApi(parcel);
-            Double cost = (Double) response.get("parcelCost");
+            Double cost = parcelService.getCost(parcel);
             JSONObject voucherDetails = voucherService.callVaucherApi(parcel,voucherCode,cost);
             if(voucherDetails.get("finalCost") != null) {
                 response.put("finalCost", voucherDetails.get("finalCost"));
