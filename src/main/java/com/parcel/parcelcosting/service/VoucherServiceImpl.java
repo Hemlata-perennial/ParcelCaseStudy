@@ -8,17 +8,21 @@ import com.parcel.parcelcosting.entity.Parcel;
 import com.parcel.parcelcosting.enums.MessageCode;
 import com.parcel.parcelcosting.exception.InvalidVoucherException;
 import com.parcel.parcelcosting.exception.VoucherExpiredException;
-import net.minidev.json.JSONObject;
+import com.sun.org.apache.bcel.internal.generic.SWITCH;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.invoke.SwitchPoint;
+import javax.swing.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class VoucherServiceImpl implements VoucherService{
@@ -37,10 +41,8 @@ public class VoucherServiceImpl implements VoucherService{
     private String apiKey;
 
     @Override
-    public JSONObject getDiscountedDeliveryCost(Parcel parcel, String voucherCode, Double cost) throws UnirestException {
-        HttpResponse<JsonNode> apiResp = Unirest.get(url + "" + voucherCode + "?key=" + apiKey).header("accept", "application/json").asJson();
-        logger.info("voucher api called with status: "+apiResp.getStatusText());
-        return getDiscount(apiResp, cost);
+    public Double getDiscountedDeliveryCost(String voucherCode, Double cost) throws UnirestException {
+        return calculateDiscountCost(cost,getDiscount(voucherCode));
     }
 
     public boolean isValidVoucher(String date) {
@@ -61,26 +63,26 @@ public class VoucherServiceImpl implements VoucherService{
         return cost;
     }
 
-    public JSONObject getDiscount(HttpResponse<JsonNode> apiResp, Double cost) {
-        org.json.JSONObject apiRespJson = apiResp.getBody().getObject();
-        logger.debug("Voucher API Response: "+apiRespJson.toString());
-        if (apiResp.getStatus() == 200) {
-            if (isValidVoucher(String.valueOf(apiRespJson.get("expiry")))) {
-                logger.info("Voucher is valid");
-
-                Double discountedCost = calculateDiscountCost(cost, (Double) apiRespJson.get("discount"));
-                return responseService.voucherDetails(discountedCost);
-            } else {
-
-                logger.error(MessageCode.VOUCHER_EXPIRED);
-                throw new VoucherExpiredException(MessageCode.VOUCHER_EXPIRED);
-            }
-        } else{
-
+    public Double getDiscount(String voucherCode) throws UnirestException {
+        if (voucherCode == null || voucherCode == "") {
+            logger.info("No voucher to apply");
+            return 0.0;
+        }
+        HttpResponse<JsonNode> apiResp = Unirest.get(url + "" + voucherCode + "?key=" + apiKey).header("accept", "application/json").asJson();
+        if(apiResp.getStatus() == 200 && isValidVoucher((String) apiResp.getBody().getObject().get("expiry"))){
+            logger.error("Calculated discount");
+            return (Double) apiResp.getBody().getObject().get("discount");
+        }
+        if(apiResp.getStatus() == 400){
             logger.error(MessageCode.INVALID_VOUCHER_CODE);
             throw new InvalidVoucherException(MessageCode.INVALID_VOUCHER_CODE);
         }
-
+        else {
+            logger.error(MessageCode.VOUCHER_EXPIRED);
+            throw new VoucherExpiredException(MessageCode.VOUCHER_EXPIRED);
+        }
     }
 
 }
+
+

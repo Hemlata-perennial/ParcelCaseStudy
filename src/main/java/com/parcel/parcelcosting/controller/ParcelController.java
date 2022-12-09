@@ -30,34 +30,14 @@ public class ParcelController {
 
     /**
      * @param parcel  Details of parcel such as height,weight,length,width
-     * @return Delivery cost of the parcel based on the parcel details provided.
-     */
-    @PostMapping("/delivery-cost")
-    ResponseEntity<JSONObject> deliveryCost(@RequestBody Parcel parcel){
-        try {
-            logger.info("Calculating delivery cost");
-            return responseService.getDeliveryCostApiResponse(parcelService.getCost(parcel));
-        }
-        catch (Exception e){
-            logger.error(e.getMessage());
-            return new ResponseEntity<>(responseService.exceptionMessage(e), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-    }
-
-    /**
-     * @param parcel  Details of parcel such as height,weight,length,width
      * @param voucherCode The coupont code to apply discount on the calculated delivery cost
      * @return Delivery cost of the parcel based on the parcel details provided and the voucher applied.
      */
-    @PostMapping("/delivery-cost/{voucherCode}")
-    ResponseEntity<JSONObject> deliveryCostVoucher(@RequestBody Parcel parcel, @PathVariable String voucherCode) throws UnirestException {
+    @PostMapping("/delivery-cost/")
+    ResponseEntity<JSONObject> deliveryCostVoucher(@RequestBody Parcel parcel, @RequestParam(required = false) final String voucherCode) throws UnirestException {
         try {
-            logger.info("Processing voucher code!");
-            Double deliveryCost = parcelService.getCost(parcel);
-            JSONObject voucherApiResponse = voucherService.getDiscountedDeliveryCost(parcel,voucherCode,deliveryCost);
-            return responseService.getDeliveryCostVoucherApiResponse(voucherApiResponse,deliveryCost);
-
+            logger.info("Processing voucher code "+voucherCode);
+            return parcelService.getCost(parcel,voucherCode);
         }catch (Exception e){
             logger.error(e.getMessage());
             return new ResponseEntity<>(responseService.exceptionMessage(e), HttpStatus.INTERNAL_SERVER_ERROR);
