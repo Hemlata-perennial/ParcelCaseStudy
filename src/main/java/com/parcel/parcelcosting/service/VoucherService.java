@@ -5,5 +5,4 @@ import com.parcel.parcelcosting.entity.Parcel;
 
 public interface VoucherService {
     Double getDiscountedDeliveryCost(String voucherCode, Double cost) throws UnirestException;
-
 }

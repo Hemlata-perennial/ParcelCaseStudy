@@ -2,9 +2,6 @@ package com.parcel.parcelcosting.controller;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.parcel.parcelcosting.entity.Parcel;
-import com.parcel.parcelcosting.enums.MessageCode;
-import com.parcel.parcelcosting.exception.ExceptionResponse;
-import com.parcel.parcelcosting.exception.InvalidVoucherException;
 import com.parcel.parcelcosting.service.ParcelService;
 import com.parcel.parcelcosting.service.ResponseService;
 import com.parcel.parcelcosting.service.VoucherServiceImpl;
@@ -14,9 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
-
 @RestController("/parcel")
 public class ParcelController {
     @Autowired
@@ -25,7 +19,6 @@ public class ParcelController {
     VoucherServiceImpl voucherService;
     @Autowired
     ResponseService responseService;
-
     Logger logger = LoggerFactory.getLogger(ParcelController.class);
 
     /**
@@ -34,9 +27,10 @@ public class ParcelController {
      * @return Delivery cost of the parcel based on the parcel details provided and the voucher applied.
      */
     @PostMapping("/delivery-cost/")
+    //TODO : change name
     ResponseEntity<JSONObject> deliveryCostVoucher(@RequestBody Parcel parcel, @RequestParam(required = false) final String voucherCode) throws UnirestException {
         try {
-            logger.info("Processing voucher code "+voucherCode);
+            logger.info("Calculating cost");
             return parcelService.getCost(parcel,voucherCode);
         }catch (Exception e){
             logger.error(e.getMessage());
