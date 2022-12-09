@@ -3,6 +3,7 @@ package com.parcel.parcelcosting.controller;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.parcel.parcelcosting.entity.Parcel;
 import com.parcel.parcelcosting.enums.MessageCode;
+import com.parcel.parcelcosting.exception.ExceptionResponse;
 import com.parcel.parcelcosting.exception.InvalidVoucherException;
 import com.parcel.parcelcosting.service.ParcelService;
 import com.parcel.parcelcosting.service.ResponseService;
@@ -34,10 +35,7 @@ public class ParcelController {
     @PostMapping("/delivery-cost")
     ResponseEntity<JSONObject> deliveryCost(@RequestBody Parcel parcel){
         try {
-            JSONObject response = new JSONObject();
-            Double DeliveryCost = parcelService.getCost(parcel);
-            response.put("parcelCost", DeliveryCost);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return responseService.getDeliveryCostApiResponse(parcelService.getCost(parcel));
         }
         catch (Exception e){
             logger.error(e.getMessage());
@@ -54,18 +52,10 @@ public class ParcelController {
     @PostMapping("/delivery-cost/{voucherCode}")
     ResponseEntity<JSONObject> deliveryCostVoucher(@RequestBody Parcel parcel, @PathVariable String voucherCode) throws UnirestException {
         try {
-            JSONObject response = new JSONObject();
-            Double cost = parcelService.getCost(parcel);
-            JSONObject voucherDetails = voucherService.callVaucherApi(parcel,voucherCode,cost);
-            if(voucherDetails.get("finalCost") != null) {
-                response.put("finalCost", voucherDetails.get("finalCost"));
-            }
-            else {
-                response.put("finalCost", cost);
-                response.put("message", MessageCode.INVALID_VOUCHER_CODE);
-                throw new InvalidVoucherException( MessageCode.INVALID_VOUCHER_CODE);
-            }
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            Double deliveryCost = parcelService.getCost(parcel);
+            JSONObject voucherApiResponse = voucherService.getDiscountedDeliveryCost(parcel,voucherCode,deliveryCost);
+            return responseService.getDeliveryCostVoucherApiResponse(voucherApiResponse,deliveryCost);
+
         }catch (Exception e){
             logger.error(e.getMessage());
             return new ResponseEntity<>(responseService.exceptionMessage(e), HttpStatus.INTERNAL_SERVER_ERROR);

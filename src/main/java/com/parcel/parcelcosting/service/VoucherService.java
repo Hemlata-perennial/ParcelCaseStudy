@@ -7,8 +7,6 @@ import com.parcel.parcelcosting.entity.Parcel;
 import net.minidev.json.JSONObject;
 
 public interface VoucherService {
-    JSONObject callVaucherApi(Parcel parcel, String voucherCode, Double cost) throws UnirestException;
-    boolean isValidVoucher(String date);
-    double calculateDiscountCost(Double cost, Double discount);
-    Object getDiscount(HttpResponse<JsonNode> apiResp, Double cost);
+    JSONObject getDiscountedDeliveryCost(Parcel parcel, String voucherCode, Double cost) throws UnirestException;
+
 }
