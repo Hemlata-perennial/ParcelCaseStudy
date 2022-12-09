@@ -4,9 +4,7 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-import com.parcel.parcelcosting.enums.MessageCode;
-
-import com.parcel.parcelcosting.utils.ExternalHttpCalls;
+import com.parcel.parcelcosting.client.HttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +26,9 @@ public class VoucherServiceImpl implements VoucherService{
     RestTemplate restTemplate;
     @Autowired
     ResponseService responseService;
-    ExternalHttpCalls httpCalls = new ExternalHttpCalls();
+
+    @Autowired
+    HttpClient httpClient;
     @Override
     public Double getDiscountedDeliveryCost(String voucherCode, Double cost) throws UnirestException {
         return calculateDiscountCost(cost,getDiscount(voucherCode));
@@ -56,13 +56,12 @@ public class VoucherServiceImpl implements VoucherService{
             logger.info("No voucher to apply");
             return 0.0;
         }
-        HttpResponse<JsonNode> voucherAPIResponse=httpCalls.makeHttpCall(voucherCode,url,apiKey);
+        HttpResponse<JsonNode> voucherAPIResponse=httpClient.makeHttpCall(voucherCode,url,apiKey);
         //if(voucherAPIResponse.getStatus() == 200 && isValidVoucher((String) voucherAPIResponse.getBody().getObject().get("expiry"))){
         if(voucherAPIResponse.getStatus() == 200){
-            logger.info("Calculing discount");
+            logger.info("Calculaing discount");
             return (Double) voucherAPIResponse.getBody().getObject().get("discount");
-        }
-        else {
+        } else {
             logger.error(voucherAPIResponse.getBody().toString());
             return 0.0;
         }
