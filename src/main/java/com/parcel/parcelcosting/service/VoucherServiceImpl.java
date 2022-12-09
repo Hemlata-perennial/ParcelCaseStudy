@@ -29,12 +29,10 @@ public class VoucherServiceImpl implements VoucherService{
     @Autowired
     ResponseService responseService;
     ExternalHttpCalls httpCalls = new ExternalHttpCalls();
-
     @Override
     public Double getDiscountedDeliveryCost(String voucherCode, Double cost) throws UnirestException {
         return calculateDiscountCost(cost,getDiscount(voucherCode));
     }
-
     public boolean isValidVoucher(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate voucherExpiryDate = LocalDate.parse(date, formatter);
@@ -52,8 +50,6 @@ public class VoucherServiceImpl implements VoucherService{
         logger.info("No discount applied");
         return cost;
     }
-
-
     public Double getDiscount(String voucherCode) throws UnirestException {
         logger.info("Processing voucher code");
         if (voucherCode == null || voucherCode == "") {
@@ -71,7 +67,6 @@ public class VoucherServiceImpl implements VoucherService{
             return 0.0;
         }
     }
-
 }
 
 
