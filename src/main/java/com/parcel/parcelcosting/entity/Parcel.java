@@ -1,63 +1,51 @@
 package com.parcel.parcelcosting.entity;
 
-import jdk.nashorn.internal.objects.annotations.Getter;
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
-import javax.persistence.*;
-
-@Entity
 public class Parcel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "parcel_id", nullable = false)
-    private Long parcelId;
 
-    @Column(name = "height", nullable = false)
-    private Double height;
+    @NotNull
+    Double weight;
 
-    @Column(name = "weight", nullable = false)
-    private Double weight;
+    @NotNull
+    Double height;
 
-    @Column(name = "width", nullable = false)
-    private Double width;
+    @NotNull
+    Double width;
 
-    @Column(name = "length", nullable = false)
-    private Double length;
+    @NotNull
+    Double length;
 
-    @Column(name = "volume", nullable = false)
-    private Double volume;
-
-    @Column(name = "cost")
-    private Double cost;
-
-    @Column(name = "rule")
-    private String rule;
-
-    public String getRule() {
-        return rule;
+    public Double getWeight() {
+        return weight;
     }
 
-    public void setRule(String rule) {
-        this.rule = rule;
+
+    public Double getHeight() {
+        return height;
     }
 
-    public Double getCost() {
-        return cost;
+
+    public Double getWidth() {
+        return width;
     }
 
-    public void setCost(Double cost) {
-        this.cost = cost;
-    }
-    public Double getVolume() {
-        return volume;
-    }
-    public void setVolume(Double volume) {
-        this.volume = volume;
-    }
+
     public Double getLength() {
         return length;
     }
-    public Double getHeight() { return height; }
-    public Double getWeight() { return weight;}
-    public Double getWidth() { return width;}
 
+
+    public static BigDecimal getVolume(final Parcel parcel) {
+        return BigDecimal.valueOf(parcel.length * parcel.width * parcel.height);
+    }
+
+    @Override
+    public String toString() {
+        return "weight=" + weight +
+                ", height=" + height +
+                ", width=" + width +
+                ", length=" + length;
+    }
 }

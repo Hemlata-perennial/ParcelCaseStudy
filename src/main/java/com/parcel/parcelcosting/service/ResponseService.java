@@ -24,7 +24,6 @@ public class ResponseService {
     public JSONObject parcelDetails(HttpResponse<JsonNode> costResp){
         JSONObject parcelDetails = new JSONObject();
         parcelDetails.put("parcelCost", costResp.getBody().getObject().get("parcelCost"));
-        parcelDetails.put("parcelType", costResp.getBody().getObject().get("parcelStatus"));
         return parcelDetails;
     }
 

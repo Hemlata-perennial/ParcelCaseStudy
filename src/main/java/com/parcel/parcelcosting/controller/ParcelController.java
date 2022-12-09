@@ -3,7 +3,6 @@ package com.parcel.parcelcosting.controller;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.parcel.parcelcosting.entity.Parcel;
 import com.parcel.parcelcosting.enums.MessageCode;
-import com.parcel.parcelcosting.reporsiory.ParcelRepository;
 import com.parcel.parcelcosting.service.ParcelService;
 import com.parcel.parcelcosting.service.ResponseService;
 import com.parcel.parcelcosting.service.VoucherServiceImpl;
@@ -14,11 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController("/parcel")
 public class ParcelController {
-    @Autowired
-    ParcelRepository parcelRepository;
-
     @Autowired
     ParcelService parcelService;
     @Autowired
@@ -27,16 +25,13 @@ public class ParcelController {
     ResponseService responseService;
 
     Logger logger = LoggerFactory.getLogger(ParcelController.class);
+
     @PostMapping("/delivery-cost")
     ResponseEntity<JSONObject> deliveryCost(@RequestBody Parcel parcel){
         try {
             JSONObject response = new JSONObject();
-            parcel.setVolume(parcel.getHeight() * parcel.getWidth() * parcel.getLength());
-            parcel.setCost(parcelService.getCost(parcel));
-            parcelRepository.save(parcel);
-            logger.info("Parcel details has been saved successfully!");
-            response.put("parcelStatus", parcel.getRule());
-            response.put("parcelCost", parcel.getCost());
+            BigDecimal DeliveryCost = parcelService.getCost(parcel);
+            response.put("parcelCost", DeliveryCost);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
         catch (Exception e){
