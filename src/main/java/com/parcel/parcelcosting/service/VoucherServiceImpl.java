@@ -36,10 +36,10 @@ public class VoucherServiceImpl implements VoucherService{
     }
 
     public boolean isValidVoucher(String date) {
-        //TODO: comment logger
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate voucherExpiryDate = LocalDate.parse(date, formatter);
         LocalDate today = LocalDate.now();
+        logger.info("Voucher valid till: "+voucherExpiryDate);
         int dateDifference = today.compareTo(voucherExpiryDate);
         return (dateDifference > 0 )  ? false: true;
     }
