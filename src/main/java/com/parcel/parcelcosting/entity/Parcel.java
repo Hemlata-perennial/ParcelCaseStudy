@@ -1,7 +1,5 @@
 package com.parcel.parcelcosting.entity;
 
-import com.parcel.parcelcosting.enums.MessageCode;
-
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
@@ -16,7 +14,6 @@ public class Parcel {
      */
     @NotNull(message = INVALID_WEIGHT_NULL)
     @PositiveOrZero(message = INVALID_WEIGHT)
-    @Max(value = 50, message = WEIGHT_LIMIT_EXCEEDED)
     Double weight;
 
     /**
@@ -63,8 +60,8 @@ public class Parcel {
     }
 
 
-    public static BigDecimal getVolume(final Parcel parcel) {
-        return BigDecimal.valueOf(parcel.length * parcel.width * parcel.height);
+    public static Double getVolume(final Parcel parcel) {
+        return parcel.length * parcel.width * parcel.height;
     }
 
     @Override

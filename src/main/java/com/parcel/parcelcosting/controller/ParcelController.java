@@ -35,7 +35,7 @@ public class ParcelController {
     ResponseEntity<JSONObject> deliveryCost(@RequestBody Parcel parcel){
         try {
             JSONObject response = new JSONObject();
-            BigDecimal DeliveryCost = parcelService.getCost(parcel);
+            Double DeliveryCost = parcelService.getCost(parcel);
             response.put("parcelCost", DeliveryCost);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }

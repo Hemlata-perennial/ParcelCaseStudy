@@ -1,14 +1,12 @@
 package com.parcel.parcelcosting.factory;
 
 import com.parcel.parcelcosting.entity.Parcel;
-import com.parcel.parcelcosting.exception.RuleNotFoundException;
+import com.parcel.parcelcosting.exception.UnsupportedRuleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 
@@ -17,51 +15,34 @@ import java.util.function.Predicate;
  */
 public class ParcelFactory {
     static Logger logger = LoggerFactory.getLogger(ParcelFactory.class);
-    private static final Map<Predicate<Parcel>, WeightRule> weightRules;
-    private static final Map<Predicate<Parcel>, VolumeRule> volumeRules;
 
-    static {
-        weightRules = new LinkedHashMap<>();
-        weightRules.put(parcel -> BigDecimal.valueOf(parcel.getWeight()).compareTo(BigDecimal.TEN) > 0, new HeavyParcelRule());
-
-        volumeRules = new LinkedHashMap<>();
-        volumeRules.put(parcel -> Parcel.getVolume(parcel).compareTo(BigDecimal.valueOf(1500)) < 0, new SmallParcelRule());
-        volumeRules.put(parcel -> Parcel.getVolume(parcel).compareTo(BigDecimal.valueOf(2500)) < 0, new MediumParcelRule());
-        volumeRules.put(parcel -> Parcel.getVolume(parcel).compareTo(BigDecimal.valueOf(2500)) >= 0, new LargeParcelRule());
-    }
 
     private ParcelFactory() {
     }
 
-    public static BigDecimal getDeliveryCost(final Parcel parcel) {
-        BigDecimal parcelWeight;
-        if (Optional.ofNullable(parcel.getWeight()).isPresent()) {
-            parcelWeight = BigDecimal.valueOf(parcel.getWeight());
+    public static Double getDeliveryCost(final Parcel parcel) {
+        Double weight;
+        Double volume = Parcel.getVolume(parcel);
+        if (parcel.getWeight() != null) {
+            weight = parcel.getWeight();
         } else {
-            parcelWeight = BigDecimal.ZERO;
+            weight = 0.0;
         }
 
-        BigDecimal parcelVolume = Parcel.getVolume(parcel);
+        Map<Predicate<Parcel>, CostRule> costRules;
+        costRules = new LinkedHashMap<>();
+        costRules.put(parcelL -> Double.valueOf(parcel.getWeight()).compareTo(50.0) > 0,new ParcelRules.RejectParcel());
+        costRules.put(parcelL -> Double.valueOf(parcel.getWeight()).compareTo(10.0) > 0,new ParcelRules.HeavyParcel());
+        costRules.put(parcelL -> Parcel.getVolume(parcel).compareTo(1500.0) < 0, new ParcelRules.SmallParcel());
+        costRules.put(parcelL -> Parcel.getVolume(parcel).compareTo(2500.0) < 0, new ParcelRules.MediumParcel());
+        costRules.put(parcelL -> Parcel.getVolume(parcel).compareTo(2500.0) >= 0, new ParcelRules.LargeParcel());
 
-        //iterating through the rules defined in the map
-        //and checking for the corresponding rule and type in which the parcel fits
-        if (parcelWeight.compareTo(BigDecimal.TEN) > 0) {
+
+        if (weight.compareTo(10.0) > 0) {
             logger.info("Weight based parcel rules");
-            return weightRules.entrySet()
-                    .stream()
-                    .filter(entry -> entry.getKey().test(parcel))
-                    .map(Map.Entry::getValue)
-                    .findFirst()
-                    .orElseThrow(RuleNotFoundException::new)
-                    .getDeliveryCost(parcelWeight);
+            return costRules.entrySet().stream().filter(entry -> entry.getKey().test(parcel)).map(Map.Entry::getValue).findFirst().orElseThrow(UnsupportedRuleException::new).getDeliveryCost(weight);
         }
         logger.info("volume based parcel rules");
-        return volumeRules.entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().test(parcel))
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElseThrow(RuleNotFoundException::new)
-                .getDeliveryCost(parcelVolume);
+        return costRules.entrySet().stream().filter(entry -> entry.getKey().test(parcel)).map(Map.Entry::getValue).findFirst().orElseThrow(UnsupportedRuleException::new).getDeliveryCost(volume);
     }
 }
