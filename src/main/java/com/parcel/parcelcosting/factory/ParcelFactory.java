@@ -32,7 +32,6 @@ public class ParcelFactory {
         } else {
             weight = 0.0;
         }
-
         /**
          * @param costRules immutable map to store rules based on weight and volume
          * **/
@@ -43,7 +42,6 @@ public class ParcelFactory {
         costRules.put(parcelL -> Parcel.getVolume(parcel).compareTo(1500.0) < 0, new ParcelRules.SmallParcel());
         costRules.put(parcelL -> Parcel.getVolume(parcel).compareTo(2500.0) < 0, new ParcelRules.MediumParcel());
         costRules.put(parcelL -> Parcel.getVolume(parcel).compareTo(2500.0) >= 0, new ParcelRules.LargeParcel());
-
 
         if (weight.compareTo(10.0) > 0) {
             logger.info("Weight based parcel rules");

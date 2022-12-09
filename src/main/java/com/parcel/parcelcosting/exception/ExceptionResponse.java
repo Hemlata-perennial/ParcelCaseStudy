@@ -14,7 +14,6 @@ public class ExceptionResponse{
     @Setter
     String error;
     final Date timestamp;
-
     public ExceptionResponse(String error) {
         this.error = error;
         timestamp = new Date();
