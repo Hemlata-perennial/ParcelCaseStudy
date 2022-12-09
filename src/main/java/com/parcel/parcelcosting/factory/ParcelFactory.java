@@ -21,14 +21,21 @@ public class ParcelFactory {
     }
 
     public static Double getDeliveryCost(final Parcel parcel) {
+
         Double weight;
+        //get volume
         Double volume = Parcel.getVolume(parcel);
+
+        //set weight
         if (parcel.getWeight() != null) {
             weight = parcel.getWeight();
         } else {
             weight = 0.0;
         }
 
+        /**
+         * @param costRules immutable map to store rules based on weight and volume
+         * **/
         Map<Predicate<Parcel>, CostRule> costRules;
         costRules = new LinkedHashMap<>();
         costRules.put(parcelL -> Double.valueOf(parcel.getWeight()).compareTo(50.0) > 0,new ParcelRules.RejectParcel());

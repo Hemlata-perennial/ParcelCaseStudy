@@ -10,6 +10,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ResponseService {
+    /**
+     * Pepare json report containing
+     * @param deliveryCost delivery cost calculated based on rule
+     * @param discountedDeliveryCost  delivery cost calculated after applying voucher
+     * **/
     public ResponseEntity<JSONObject> getDeliveryCostApiResponse(Double deliveryCost, Double discountedDeliveryCost){
         JSONObject response = new JSONObject();
         response.put("deliveryCost", deliveryCost);

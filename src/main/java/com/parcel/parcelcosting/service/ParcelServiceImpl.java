@@ -21,8 +21,11 @@ public class ParcelServiceImpl implements ParcelService {
     Logger logger = LoggerFactory.getLogger(ParcelService.class);
     @Override
     public ResponseEntity<JSONObject> getCost(Parcel parcel, String voucherCode) throws UnirestException {
+        //Get delivery cost
         Double deliveryCost = ParcelFactory.getDeliveryCost(parcel);
         logger.info("calculated delivery cost:" + deliveryCost);
+
+        //Get discount cost
         Double discountedDeliveryCost = voucherService.getDiscountedDeliveryCost(voucherCode,deliveryCost);
         logger.info("calculated discounted delivery cost:" + discountedDeliveryCost);
 

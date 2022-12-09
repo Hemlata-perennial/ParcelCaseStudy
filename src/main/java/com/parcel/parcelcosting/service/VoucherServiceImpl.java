@@ -63,17 +63,25 @@ public class VoucherServiceImpl implements VoucherService{
         return cost;
     }
 
+    public HttpResponse<JsonNode> makeHttpCall(String voucherCode) throws UnirestException {
+         HttpResponse<JsonNode> voucherAPIResponse = Unirest.get(url + "" + voucherCode + "?key=" + apiKey)
+                .header("accept", "application/json")
+                .asJson();
+         return  voucherAPIResponse;
+
+    }
     public Double getDiscount(String voucherCode) throws UnirestException {
+        logger.info("Processing voucher code");
         if (voucherCode == null || voucherCode == "") {
             logger.info("No voucher to apply");
             return 0.0;
         }
-        HttpResponse<JsonNode> apiResp = Unirest.get(url + "" + voucherCode + "?key=" + apiKey).header("accept", "application/json").asJson();
-        if(apiResp.getStatus() == 200 && isValidVoucher((String) apiResp.getBody().getObject().get("expiry"))){
+        HttpResponse<JsonNode> voucherAPIResponse=makeHttpCall(voucherCode);
+        if(voucherAPIResponse.getStatus() == 200 && isValidVoucher((String) voucherAPIResponse.getBody().getObject().get("expiry"))){
             logger.error("Calculated discount");
-            return (Double) apiResp.getBody().getObject().get("discount");
+            return (Double) voucherAPIResponse.getBody().getObject().get("discount");
         }
-        if(apiResp.getStatus() == 400){
+        if(voucherAPIResponse.getStatus() == 400){
             logger.error(MessageCode.INVALID_VOUCHER_CODE);
             throw new InvalidVoucherException(MessageCode.INVALID_VOUCHER_CODE);
         }
