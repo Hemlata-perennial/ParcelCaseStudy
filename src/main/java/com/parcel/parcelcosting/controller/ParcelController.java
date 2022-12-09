@@ -3,6 +3,7 @@ package com.parcel.parcelcosting.controller;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.parcel.parcelcosting.entity.Parcel;
 import com.parcel.parcelcosting.enums.MessageCode;
+import com.parcel.parcelcosting.exception.InvalidVoucherException;
 import com.parcel.parcelcosting.service.ParcelService;
 import com.parcel.parcelcosting.service.ResponseService;
 import com.parcel.parcelcosting.service.VoucherServiceImpl;
@@ -63,6 +64,7 @@ public class ParcelController {
             else {
                 response.put("finalCost", cost);
                 response.put("message", MessageCode.INVALID_VOUCHER_CODE);
+                throw new InvalidVoucherException( MessageCode.INVALID_VOUCHER_CODE);
             }
             return new ResponseEntity<>(response, HttpStatus.OK);
         }catch (Exception e){

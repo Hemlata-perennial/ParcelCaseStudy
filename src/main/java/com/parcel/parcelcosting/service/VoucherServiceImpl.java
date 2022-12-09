@@ -5,6 +5,8 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.parcel.parcelcosting.entity.Parcel;
+import com.parcel.parcelcosting.enums.MessageCode;
+import com.parcel.parcelcosting.exception.VoucherExpiredException;
 import net.minidev.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +91,8 @@ public class VoucherServiceImpl implements VoucherService{
                 return responseService.voucherDetails(discountedCost);
             } else {
                 logger.info("Voucher is expired");
-                return responseService.voucherDetails(cost);
+                throw new VoucherExpiredException(MessageCode.VOUCHER_EXPIRED);
+                //return responseService.voucherDetails(cost);
             }
         } else if(apiResp.getStatus() == 400){
             logger.info("Voucher is invalid");
