@@ -6,7 +6,6 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class ExternalHttpCalls {
-
     public HttpResponse<JsonNode> makeHttpCall(String voucherCode, String url, String apiKey) throws UnirestException {
         HttpResponse<JsonNode> voucherAPIResponse = Unirest.get(url + "" + voucherCode + "?key=" + apiKey)
                 .header("accept", "application/json")
