@@ -35,6 +35,7 @@ public class ParcelController {
     @PostMapping("/delivery-cost")
     ResponseEntity<JSONObject> deliveryCost(@RequestBody Parcel parcel){
         try {
+            logger.info("Calculating delivery cost");
             return responseService.getDeliveryCostApiResponse(parcelService.getCost(parcel));
         }
         catch (Exception e){
@@ -52,6 +53,7 @@ public class ParcelController {
     @PostMapping("/delivery-cost/{voucherCode}")
     ResponseEntity<JSONObject> deliveryCostVoucher(@RequestBody Parcel parcel, @PathVariable String voucherCode) throws UnirestException {
         try {
+            logger.info("Processing voucher code!");
             Double deliveryCost = parcelService.getCost(parcel);
             JSONObject voucherApiResponse = voucherService.getDiscountedDeliveryCost(parcel,voucherCode,deliveryCost);
             return responseService.getDeliveryCostVoucherApiResponse(voucherApiResponse,deliveryCost);
