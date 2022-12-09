@@ -26,6 +26,10 @@ public class ParcelController {
 
     Logger logger = LoggerFactory.getLogger(ParcelController.class);
 
+    /**
+     * @param parcel  Details of parcel such as height,weight,length,width
+     * @return Delivery cost of the parcel based on the parcel details provided.
+     */
     @PostMapping("/delivery-cost")
     ResponseEntity<JSONObject> deliveryCost(@RequestBody Parcel parcel){
         try {
@@ -41,6 +45,11 @@ public class ParcelController {
 
     }
 
+    /**
+     * @param parcel  Details of parcel such as height,weight,length,width
+     * @param voucherCode The coupont code to apply discount on the calculated delivery cost
+     * @return Delivery cost of the parcel based on the parcel details provided and the voucher applied.
+     */
     @PostMapping("/delivery-cost/{voucherCode}")
     ResponseEntity<JSONObject> deliveryCostVoucher(@RequestBody Parcel parcel, @PathVariable String voucherCode) throws UnirestException {
         try {

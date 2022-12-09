@@ -5,15 +5,27 @@ import java.math.BigDecimal;
 
 public class Parcel {
 
+    /**
+     * weight - represents the weight of the parcel in KGs
+     */
     @NotNull
     Double weight;
 
+    /**
+     * height - represents the height of the parcel in CMs
+     */
     @NotNull
     Double height;
 
+    /**
+     * width - represents the width of the parcel in cms
+     */
     @NotNull
     Double width;
 
+    /**
+     * weight - represents the length of the parcel in CMs
+     */
     @NotNull
     Double length;
 
@@ -21,11 +33,9 @@ public class Parcel {
         return weight;
     }
 
-
     public Double getHeight() {
         return height;
     }
-
 
     public Double getWidth() {
         return width;

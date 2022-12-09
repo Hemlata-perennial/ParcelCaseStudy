@@ -11,6 +11,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+
+/**
+ * The purpose of the class is to define rules based volume and weight using design pattern
+ */
 public class ParcelFactory {
     static Logger logger = LoggerFactory.getLogger(ParcelFactory.class);
     private static final Map<Predicate<Parcel>, WeightRule> weightRules;
